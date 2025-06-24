@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>상품 등록</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    form { display: flex; flex-direction: column; width: 300px; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>📦 상품 등록</h2>
+  <form action="/upload-product" method="POST" enctype="multipart/form-data">
+    <label>
+      상품명:
+      <input type="text" name="productName" required />
+    </label>
+    <label>
+      가격 (원):
+      <input type="number" name="productPrice" required />
+    </label>
+    <label>
+      이미지:
+      <input type="file" name="productImage" accept="image/*" required />
+    </label>
+    <button type="submit">등록</button>
+  </form>
+</body>
+</html>

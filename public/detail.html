@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>상품 상세 - 이세계 상점</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0; padding: 1rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    h1 {
+      margin: 1rem 0 0.5rem;
+      font-size: 1.8rem;
+      color: #333;
+    }
+    .price {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #0077ff;
+      margin-bottom: 1rem;
+    }
+    .desc {
+      font-size: 1rem;
+      color: #555;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      background: #0077ff;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #005fcc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="productDetail">
+    <p>로딩 중...</p>
+  </div>
+
+  <script>
+    // URL에서 id 쿼리 파라미터 추출
+    const params = new URLSearchParams(window.location.search);
+    const productId = parseInt(params.get("id"), 10);
+
+    const container = document.getElementById("productDetail");
+
+    if (!productId) {
+      container.innerHTML = "<p>잘못된 상품 정보입니다.</p>";
+      throw new Error("Invalid product ID");
+    }
+
+    // 서버에서 상품 목록 받아서 해당 ID 상품 찾기
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(products => {
+        const product = products.find(p => p.id === productId);
+        if (!product) {
+          container.innerHTML = "<p>상품을 찾을 수 없습니다.</p>";
+          return;
+        }
+
+        container.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" />
+          <h1>${product.name}</h1>
+          <div class="price">₩${product.price.toLocaleString()}</div>
+          <div class="desc">${product.desc || '상세 설명이 없습니다.'}</div>
+          <button onclick="alert('장바구니에 담겼습니다!')">장바구니 담기</button>
+        `;
+      })
+      .catch(() => {
+        container.innerHTML = "<p>상품 정보를 불러오는 데 실패했습니다.</p>";
+      });
+  </script>
+</body>
+</html>

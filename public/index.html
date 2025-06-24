@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>🛍️ 이세계 상점</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f5f5f5;
+    }
+    header {
+      padding: 1rem 2rem;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header .btns button {
+      background: #0077ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-left: 0.5rem;
+    }
+    header .btns button:hover {
+      background: #005fcc;
+    }
+    main {
+      max-width: 1200px;
+      margin: 1rem auto 2rem;
+      padding: 0 1rem;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+    }
+    #searchInput {
+      display: block;
+      margin: 1rem auto;
+      max-width: 400px;
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .product-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
+    .product-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+    }
+    .product-card h3 {
+      margin: 0.5rem 0 0.2rem;
+      color: #333;
+    }
+    .product-card p {
+      font-weight: bold;
+      color: #555;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🛍️ 이세계 상점</div>
+    <div class="btns">
+      <button onclick="location.href='upload.html'">상품 등록</button>
+    </div>
+  </header>
+
+  <main>
+    <input type="text" id="searchInput" placeholder="상품명으로 검색..." autocomplete="off" />
+    <div id="productList" class="product-list"></div>
+  </main>
+
+  <script>
+    const productListEl = document.getElementById('productList');
+    const searchInput = document.getElementById('searchInput');
+    let allProducts = [];
+
+    // 상품 렌더링
+    function renderProducts(list) {
+      productListEl.innerHTML = '';
+      if (list.length === 0) {
+        productListEl.innerHTML = '<p style="text-align:center;">상품이 없습니다.</p>';
+        return;
+      }
+
+      list.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <a href="product.html?id=${p.id}">
+            <img src="${p.img}" alt="${p.name}" />
+            <h3>${p.name}</h3>
+            <p>₩${p.price.toLocaleString()}</p>
+          </a>
+        `;
+        productListEl.appendChild(card);
+      });
+    }
+
+    // 상품 목록 불러오기
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        allProducts = data;
+        renderProducts(allProducts);
+      })
+      .catch(err => {
+        productListEl.innerHTML = '<p style="color:red; text-align:center;">상품을 불러오지 못했습니다.</p>';
+        console.error('상품 로딩 오류:', err);
+      });
+
+    // 검색
+    searchInput.addEventListener('input', () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const filtered = allProducts.filter(p => p.name.toLowerCase().includes(keyword));
+      renderProducts(filtered);
+    });
+  </script>
+</body>
+</html>
