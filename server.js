@@ -4,14 +4,17 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // 수정된 포인트
 const ADMIN_PASSWORD = 'wlals159632';
 
 const uploadDir = path.join(__dirname, 'uploads');
 const dataPath = path.join(__dirname, 'products.json');
 const publicDir = path.join(__dirname, 'public');
 
+// uploads 폴더 없으면 생성
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+// products.json 없으면 초기화
 if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, '[]', 'utf8');
 
 // 멀티 이미지 업로드 설정
@@ -22,11 +25,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// 정적 파일 설정
 app.use(express.static(publicDir));
 app.use('/uploads', express.static(uploadDir));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 데이터 불러오기/저장 함수
 function loadProducts() {
   return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 }
@@ -34,7 +39,7 @@ function saveProducts(data) {
   fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), 'utf8');
 }
 
-// ✅ 상품 등록 (다중 이미지 + 관리자 비번)
+// ✅ 상품 등록 API
 app.post('/upload-product', upload.array('productImages', 5), (req, res) => {
   const { productName, productPrice, productDesc, productCategory, adminPassword } = req.body;
 
@@ -54,7 +59,7 @@ app.post('/upload-product', upload.array('productImages', 5), (req, res) => {
     price: parseInt(productPrice, 10),
     desc: productDesc,
     category: productCategory,
-    images: imagePaths // 여러 이미지 저장
+    images: imagePaths
   };
 
   try {
@@ -69,7 +74,7 @@ app.post('/upload-product', upload.array('productImages', 5), (req, res) => {
   }
 });
 
-// ✅ 상품 목록
+// ✅ 상품 목록 API
 app.get('/api/products', (req, res) => {
   try {
     res.json(loadProducts());
@@ -78,6 +83,7 @@ app.get('/api/products', (req, res) => {
   }
 });
 
+// 서버 시작
 app.listen(PORT, () => {
   console.log(`✅ 서버 실행 중: http://localhost:${PORT}`);
 });
